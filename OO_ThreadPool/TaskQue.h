@@ -21,7 +21,10 @@ public:
   bool isFull();
   bool isEmpty();
 
+  void wakeup();
+
 private:
+  bool _flag;
   size_t _quesize;
   queue<ElemType> _que;
   Mutexlock _mutex;

@@ -23,6 +23,7 @@ void ThreadPool::stop() {
     sleep(1);
   }
   _isExit = true;
+  _taskque.wakeup();
   for (auto &it : _tpool) {
     it.stop();
   }

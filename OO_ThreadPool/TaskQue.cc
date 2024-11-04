@@ -1,7 +1,7 @@
 #include "TaskQue.h"
 
 TaskQue::TaskQue(size_t quesize)
-    : _quesize(quesize), _mutex(), _condtion(_mutex) {}
+    : _flag(true), _quesize(quesize), _mutex(), _condtion(_mutex) {}
 
 TaskQue::~TaskQue() {}
 
@@ -21,12 +21,22 @@ void TaskQue::push(ElemType val) {
 
 ElemType TaskQue::pop() {
   _mutex.lock();
-  while (isEmpty()) {
+  while (_flag && isEmpty()) {
     _condtion.wait();
   }
-  ElemType tmp = _que.front();
-  _que.pop();
-  _condtion.notefly();
-  _mutex.unlock();
-  return tmp;
+  if (_flag) {
+    ElemType tmp = _que.front();
+    _que.pop();
+    _condtion.notefly();
+    _mutex.unlock();
+    return tmp;
+  } else {
+    _mutex.unlock();
+    return nullptr;
+  }
+}
+
+void TaskQue::wakeup() {
+  _flag = false;
+  _condtion.noteflyAll();
 }
